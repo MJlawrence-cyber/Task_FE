@@ -1,38 +1,51 @@
 import { useFormik } from "formik";
 import React from "react";
 import * as yup from "yup";
+import { useTasks } from "../../features/hooks/useTasks";
+import { useLoading } from "../../features/hooks/useLoading";
+
+
+
 function AddTask() {
+  const {addTask, loading} = useTasks();
+  const {setLoading} = useLoading();
+
   const formik = useFormik({
     initialValues: {
       title: "",
       description: "",
+      price: "",
     },
     validationSchema: yup.object().shape({
       title: yup.string().required("Title is required"),
       description: yup.string().required("Description is required"),
+      price: yup.string().required("Price is required"),
     }),
-    onSubmit: (values) => {
-      console.log(values);
+    onSubmit: async (values) => {
+      setLoading(true);
+      await addTask(values);
+      formik.resetForm();
+      setLoading(false);
     },
   });
   return (
     <div className="flex justify-center items-center h-full w-full">
       <form
         onSubmit={formik.handleSubmit}
-        className="max-w-sm mx-auto bg-gray-900 mt-16 p-10 rounded-lg"
+        className="w-1/2 mx-auto bg-gray-900 mt-16 p-10 rounded-lg"
       >
         <label
-          htmlFor="add"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          htmlFor="title"
+          className="block mb-2 text-sm font-medium text-white dark:text-white"
         >
           Add Task
         </label>
         <input
           type="text"
-          id="add"
+          id="title"
           name="title"
           aria-describedby="helper-text-explanation"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           placeholder="Task"
           value={formik.values.title}
           onChange={formik.handleChange}
@@ -42,9 +55,30 @@ function AddTask() {
           <p className="text-red-500 pt-2 text-xs ">{formik.errors.title}</p>
         ) : null}
 
+<label
+          htmlFor="add"
+          className="block mb-2 text-sm font-medium text-white dark:text-white"
+        >
+          Add Price
+        </label>
+        <input
+          type="text"
+          id="price"
+          name="price"
+          aria-describedby="helper-text-explanation"
+          className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          placeholder="Price"
+          value={formik.values.pricr}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+        />
+        {formik.errors.title && formik.touched.price ? (
+          <p className="text-red-500 pt-2 text-xs ">{formik.errors.price}</p>
+        ) : null}
+
         <label
           htmlFor="add"
-          className="block mb-2 text-sm mt-4 font-medium text-gray-900 dark:text-white"
+          className="block mb-2 text-sm mt-4 font-medium text-white dark:text-white"
         >
           Task Description
         </label>
@@ -53,7 +87,7 @@ function AddTask() {
           id="add"
           name="description"
           aria-describedby="helper-text-explanation"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           placeholder="Task Description"
           value={formik.values.description}
           onChange={formik.handleChange}
@@ -65,8 +99,8 @@ function AddTask() {
           </p>
         ) : null}
         <div className=" w-full flex justify-center mt-5">
-          <button className="bg-white rounded-lg w-[60%] h-12" type="submit">
-            Add Task
+          <button className="bg-white rounded-lg w-[80%] h-12" type="submit" disabled = {loading }>
+           {loading ? 'Loading...' : 'Add Task'}
           </button>
         </div>
       </form>
